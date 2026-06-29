@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-600 -600 1200 1200">
+    <style>
+        text {
+            font-family: Courier New, Courier, monospace;
+            font-size: 18px;
+        }
+        g { cursor: pointer; }
+        circle {
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-box: view-box;
+            transform-origin: center;
+        }
+        g:hover circle {
+            transform: translate(
+                calc(cos(var(--mid-angle)) * 22px),
+                calc(sin(var(--mid-angle)) * 22px)
+            );
+        }
+        text {
+            transition: font-size 0.2s ease, fill 0.2s ease, font-weight 0.2s ease;
+        }
+        g:hover text {
+            font-size: 22px;
+            font-weight: bold;
+            fill: var(--color);
+        }
+    </style>
+
+    <rect x="-600" y="-600" width="1200" height="1200" fill="none" stroke="#ccc" stroke-width="4"/>
+
+    <% let last_angle = 0 %>
+    <% languages.forEach(language => { %>
+        <% const part = +(language.usage * 360 / total).toFixed(2) %>
+        <% const rest = Math.round(360 - last_angle - part) %>
+
+        <% const title_ang = last_angle + part/2 %>
+        <% const title_x = +(Math.cos(title_ang * Math.PI / 180) * 440).toFixed(2) %>
+        <% const title_y = +(Math.sin(title_ang * Math.PI / 180) * 440).toFixed(2) %>
+
+        <g style="--color: <%= language.color %>; --mid-angle: <%= title_ang %>deg">
+            <circle cx="0" cy="0" r="200"
+                stroke="<%= language.color %>"
+                stroke-width="400" pathLength="360" fill="none"
+                stroke-dasharray="0 <%= last_angle %> <%= part %> <%= rest %>"/>
+
+            <text
+                x="<%= title_x %>"
+                y="<%= title_y %>"
+                text-anchor="<%= title_x > 0 ? 'start' : 'end' %>"
+                dominant-baseline="<%= title_y > 0 ? 'hanging' : 'baseline' %>">
+                <%= language.name %>
+            </text>
+        </g>
+
+        <% last_angle += part %>
+    <% }) %>
+
+</svg>
