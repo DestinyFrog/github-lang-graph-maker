@@ -26,8 +26,6 @@
         }
     </style>
 
-    <rect x="-600" y="-600" width="1200" height="1200" fill="none" stroke="#ccc" stroke-width="4"/>
-
     <% let last_angle = 0 %>
     <% languages.forEach(language => { %>
         <% const part = +(language.usage * 360 / total).toFixed(2) %>
@@ -48,7 +46,7 @@
                 y="<%= title_y %>"
                 text-anchor="<%= title_x > 0 ? 'start' : 'end' %>"
                 dominant-baseline="<%= title_y > 0 ? 'hanging' : 'baseline' %>">
-                <%= language.name %>
+                <%= language.name %> (<%= Math.ceil(100 * language.usage / total) %>%)
             </text>
         </g>
 
