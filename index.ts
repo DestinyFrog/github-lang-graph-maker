@@ -22,7 +22,9 @@ interface Owner {
 
 async function fetch_repos_by_owner(owner_name: string) {
     const res = await fetch(`https://api.github.com/users/${owner_name}/repos`)
+    if (!res.ok) throw new Error(`GitHub API error ${res.status}: ${res.statusText}`)
     const repositories = await res.json()
+    if (!Array.isArray(repositories)) throw new Error(`GitHub API unexpected response: ${JSON.stringify(repositories)}`)
     return repositories as { name: string }[]
 }
 
