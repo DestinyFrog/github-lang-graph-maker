@@ -10,6 +10,8 @@ const q_insert_owner = await db.prepare("INSERT INTO owner(name) VALUES (?)")
 const q_insert_repo = await db.prepare("INSERT INTO repo(name, owner_id) VALUES (?, ?) RETURNING id")
 const q_insert_language_usage = await db.prepare("INSERT INTO language_usage(language, usage, repo_id) VALUES (?, ?, ?)")
 const q_update_last_updated_at = await db.prepare("UPDATE owner SET last_updated_at = CURRENT_TIMESTAMP WHERE ?")
+const q_delete_repo_by_owner = await db.prepare("DELETE FROM repo WHERE owner_id = ?")
+const q_delete_language_usage_by_owner = await db.prepare("DELETE FROM language_usage WHERE repo_id IN (SELECT id FROM repo WHERE owner_id = ?);")
 
 interface Owner {
     id: number
@@ -30,7 +32,7 @@ async function fetch_language_usage_by_repo(owner_name: string, repo_name: strin
     return languages as { [key: string]: number }
 }
 
-async function update_owner_data(github_user: string) {
+async function update_owner_data(github_user: string, reload = false) {
     const data = await q_select_owner_by_name.all(github_user)
     let owner = null as Owner | null 
     let owner_existed = (data.length > 0)
@@ -46,7 +48,10 @@ async function update_owner_data(github_user: string) {
     const one_week_before = new Date()
     one_week_before.setDate(one_week_before.getDate() - 7)
 
-    if (!owner_existed || new Date(owner.last_updated_at) < one_week_before) {
+    if (reload || !owner_existed || new Date(owner.last_updated_at) < one_week_before) {
+        await q_delete_language_usage_by_owner.run([ owner.id ])
+        await q_delete_repo_by_owner.run([ owner.id ])
+
         const api_repos = await fetch_repos_by_owner(owner.name)
 
         for (const repo of api_repos) {
@@ -72,8 +77,9 @@ const server = Bun.serve({
 
             const url = new URL(req.url)
             const tags_str = url.searchParams.get("tags")
+            const reload = !!url.searchParams.get("reload")
 
-            const owner = await update_owner_data(github_user)
+            const owner = await update_owner_data(github_user, reload)
 
             let q_where_tags = ''
             if (tags_str) {
