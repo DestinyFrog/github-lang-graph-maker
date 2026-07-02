@@ -7,17 +7,19 @@ const server = Bun.serve({
         "/:github_user": async req => {
             try {
                 const github_user = req.params.github_user
+                if (github_user == "favicon.ico")
+                    return new Response("")
+
                 const url = new URL(req.url)
                 const reload = !!url.searchParams.get("reload")
                 
                 const { existed, owner } = await Owner.get_or_insert(github_user)
-                
+
                 if (!existed || owner.should_reload() || reload)
                     owner.update()
                 
                 const tags_str = url.searchParams.get("tags") || ''
                 const tags = tags_str.split(',').filter(str => !!str)
-                owner.get_full_languages_usage(tags)
 
                 const languages = await owner.get_full_languages_usage(tags)
                 const total = languages.reduce((acc, language) => acc + language.usage, 0)
