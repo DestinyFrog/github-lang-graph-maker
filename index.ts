@@ -31,10 +31,12 @@ const server = Bun.serve({
                 return new Response(output_svg, { headers: { "Content-Type": "image/svg+xml" }})
             }
             catch (err) {
-                if (err instanceof Error)
-                    return Response.json({ message: err.message })
+                console.error(err)
 
-                return Response.json({ message: String(err) })
+                if (err instanceof Error)
+                    return Response.json({ message: err.message }, { status: 500 })
+
+                return Response.json({ message: String(err) }, { status: 500 })
             }
         },
     }
