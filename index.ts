@@ -21,7 +21,10 @@ const server = Bun.serve({
                 const tags_str = url.searchParams.get("tags") || ''
                 const tags = tags_str.split(',').filter(str => !!str)
 
-                const languages = await owner.get_full_languages_usage(tags)
+                const limit_str = url.searchParams.get("limit")
+                const limit = limit_str ? parseInt(limit_str) : null
+
+                const languages = await owner.get_full_languages_usage(tags, limit)
                 const total = languages.reduce((acc, language) => acc + language.usage, 0)
 
                 const file = Bun.file('./sector_chart.ejs')

@@ -71,11 +71,16 @@ export class Owner {
         }
     }
 
-    public async get_full_languages_usage(tags: string[] = []) {
+    public async get_full_languages_usage(tags: string[] = [], limit: number | null = null) {
         let q_where_tags = ''
         if (tags.length > 0) {
             const tags_sql = tags.map(tag => `'${tag.trim()}'`).join(', ')
             q_where_tags = ` AND tags IN (${tags_sql})`
+        }
+
+        let q_limit = ''
+        if (limit !== null) {
+            q_limit = ` LIMIT ${limit}`
         }
 
         const sql = `SELECT lu.language, SUM(lu.usage) AS usage, la.*, owner_id
@@ -85,8 +90,8 @@ export class Owner {
             WHERE r.owner_id = ?
             ${q_where_tags}
             GROUP BY lu.language
-            ORDER BY usage DESC;
-            `
+            ORDER BY usage DESC
+            ${q_limit};`
 
         const query = await db.prepare(sql)
         return await query.all(this.id) as {
