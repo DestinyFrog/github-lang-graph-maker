@@ -47,12 +47,16 @@ VALUES
     ('Java', '#e22b2c', 'programing-language'),
     ('TypeScript', '#2f74bf', 'programing-language'),
 
+    ('EJS', '#a31d4d', 'library'),
+
     ('Svelte', '#ff4408', 'frontend-framework'),
 
     ('Makefile', '#ef5855', 'config-language'),
+    ('Dockerfile', '#12b9db', 'config-language'),
 
     ('HTML', '#e4522c', 'data-language'),
-    ('CSS', '#2c52e4', 'data-language')
+    ('CSS', '#2c52e4', 'data-language'),
+    ('SCSS', '#c66394', 'data-language')
 ;
 
 CREATE VIEW get_languages_by_owner AS
