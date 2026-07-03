@@ -12,12 +12,12 @@ const server = Bun.serve({
 
                 const url = new URL(req.url)
                 const reload = !!url.searchParams.get("reload")
-                
+
                 const { existed, owner } = await Owner.get_or_insert(github_user)
 
                 if (!existed || owner.should_reload() || reload)
-                    owner.update()
-                
+                    await owner.update()
+
                 const tags_str = url.searchParams.get("tags") || ''
                 const tags = tags_str.split(',').filter(str => !!str)
 
