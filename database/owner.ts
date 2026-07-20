@@ -100,7 +100,12 @@ export class Owner {
     }
 
     private async get_repos_from_github() {
-        const res = await fetch(`https://api.github.com/users/${this.name}/repos`)
+        const res = await fetch(`https://api.github.com/users/${this.name}/repos`, {
+            headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        })
         if (!res.ok)
             throw new Error(`GitHub API error ${res.status}: ${res.statusText}`)
         
@@ -112,7 +117,12 @@ export class Owner {
     }
 
     private async get_language_usage_from_github(repo_name: string) {
-        const res = await fetch(`https://api.github.com/repos/${this.name}/${repo_name}/languages`)
+        const res = await fetch(`https://api.github.com/repos/${this.name}/${repo_name}/languages`, {
+            headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        })
         if (!res.ok)
             throw new Error(`GitHub API error ${res.status}: ${res.statusText}`)
 
